@@ -1,0 +1,52 @@
+@page "/contacto"
+<h1>Contactos</h1>
+<div class="row">
+    <div class="col">
+        <input type="text" @bind="Filtro">
+    </div>
+    <div class="col">
+        <div class="btn-group">
+        <button class="btn btn-prymary" @onclick="()=>Consultar()">Buscar</button>
+        <button class="btn btn-secundary" @onclick="Nuevo">+</button>
+        </div>
+        
+    </div>
+</div>
+<table class="table">
+    <thead>
+        <th>Codigo</th>
+        <th>Nombre</th>
+        <th>Telefono</th>
+        <th>Ciudad</th>
+    </thead>
+    <tbody>
+        @foreach (var Contacto in Contactos)
+        {
+            <tr>
+                <td>@Contacto.Id</td>
+                <td>@Contacto.Nombre</td>
+                <td>@Contacto.Telefono</td>
+                <td>@Contacto.Ciudad!.Nombre</td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code{
+    public string Filtro { get; set; } = "";
+    public List<ContactoRecord> Contactos { get; set; } = new List<ContactoRecord>();
+        void Nuevo(){
+            urlHelper.NavigateTo("/contacto/crear");
+        }
+    public async Task<bool> Consultar()
+    {
+        var response = await ContactoService.Consultar(Filtro);
+        if(response.Exitoso)
+            Contactos = response.Datos!;
+        return true;
+    }
+    protected async override Task OnInitializedAsync()
+    {
+        await Consultar();
+    }
+}

@@ -1,0 +1,57 @@
+@page "/contacto/crear"
+<h1>Registrar contacto</h1>
+<EditForm Model="@Datos" OnValidSubmit="Registrar">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="row">
+    </div>
+    <div class="row">
+        <div class="col">
+                <label for="txtNombre">Nombre</label>
+                <InputText id="txtNombre" class="form-control" @bind-Value="Datos.Nombre"/>
+        </div>
+        <div class="col">
+                <label for="txtTelefono">Teléfono</label>
+                <InputText id="txtTelefono" class="form-control" @bind-Value="Datos.Telefono"/>
+        </div>
+        
+        <div class="col">
+                <label for="cbCiudad">Ciudad</label>
+                <InputSelect  id="cbCiudad" class="form-control" @bind-Value="Datos.CiudadId">
+                    @foreach (var ciudad in Ciudades)
+                    {
+                        <option value="@ciudad.Id">@ciudad.Nombre</option>
+                    }
+                </InputSelect>
+        </div>
+    </div>
+    <div class="row mt-3">
+        <button class="btn btn-success" type="submit">Registrar</button>
+    </div>
+</EditForm>
+
+
+@code
+{
+    public ContactoRequest Datos { get; set; } = new ContactoRequest();
+    public List<CiudadRecord> Ciudades { get; set; } = new List<CiudadRecord>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        var response = await ContactoService.GetCiudades();
+        if(response.Exitoso)
+            Ciudades = response.Datos!;
+    }
+
+    public async void Registrar()
+    {
+        var response = await ContactoService.Registrar(Datos);
+        if(response.Exitoso){
+            var Id = response.Datos;
+            Console.WriteLine(Id);
+            urlHelper.NavigateTo("/contacto");
+        }
+        else Console.WriteLine(response.Mensaje);
+    }
+}
+
